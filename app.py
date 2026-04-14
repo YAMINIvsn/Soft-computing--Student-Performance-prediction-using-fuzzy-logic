@@ -11,52 +11,71 @@ from sklearn.metrics import r2_score
 # -------------------------
 # PAGE CONFIG
 # -------------------------
-st.set_page_config(page_title="Student Dashboard", layout="wide")
+st.set_page_config(page_title="Student Performance Analytics", layout="wide")
 
 # -------------------------
-# 🌈 MODERN UI STYLE
+# INDUSTRY-LEVEL UI THEME (CLEAN + ANIMATED)
 # -------------------------
 st.markdown("""
 <style>
+
+/* Animated dark gradient background */
 body {
-    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-    color: white;
+    background: linear-gradient(-45deg, #0a0f1c, #111827, #0f172a, #1e293b);
+    background-size: 400% 400%;
+    animation: gradientBG 14s ease infinite;
+    color: #e5e7eb;
 }
-.card {
-    background: rgba(255,255,255,0.08);
-    padding: 20px;
-    border-radius: 15px;
-    backdrop-filter: blur(10px);
-    box-shadow: 0 4px 30px rgba(0,0,0,0.3);
-    transition: 0.3s;
+
+/* animation */
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
-.card:hover {
-    transform: scale(1.02);
+
+/* Main container spacing */
+.block-container {
+    padding: 2.5rem 3rem;
 }
+
+/* Title styling */
 .title {
-    font-size: 40px;
-    font-weight: bold;
+    font-size: 36px;
+    font-weight: 700;
     text-align: center;
-    background: -webkit-linear-gradient(#00c6ff, #0072ff);
+    background: linear-gradient(90deg, #60a5fa, #3b82f6, #22d3ee);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    margin-bottom: 20px;
 }
-.result-box {
-    padding: 30px;
-    border-radius: 15px;
-    text-align: center;
-    font-size: 24px;
-    font-weight: bold;
-    background: linear-gradient(135deg, #00c6ff, #0072ff);
-    color: white;
+
+/* Subheaders */
+h2, h3 {
+    color: #e5e7eb;
 }
+
+/* Clean metric cards */
+div[data-testid="metric-container"] {
+    background-color: rgba(255,255,255,0.06);
+    border-radius: 12px;
+    padding: 10px;
+    backdrop-filter: blur(8px);
+}
+
+/* Plot container */
+.css-1v0mbdj img {
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown('<div class="title">🎓 Student Performance Dashboard</div>', unsafe_allow_html=True)
+st.markdown('<div class="title">Student Performance Analytics Dashboard</div>', unsafe_allow_html=True)
 
 # -------------------------
-# LOAD DATA (FAST ⚡)
+# LOAD DATA
 # -------------------------
 @st.cache_data
 def load_data():
@@ -72,7 +91,7 @@ df = load_data()
 df = df.sample(150)
 
 # -------------------------
-# FUZZY + ML (FIXED ORDER 🔥)
+# FUZZY MODEL
 # -------------------------
 @st.cache_data
 def compute_fuzzy(df):
@@ -93,6 +112,9 @@ def compute_fuzzy(df):
 fuzzy_preds = compute_fuzzy(df)
 actual = df['G3'].values
 
+# -------------------------
+# LINEAR MODEL
+# -------------------------
 X = df[['studytime','absences','G1','G2']]
 y = df['G3']
 
@@ -101,9 +123,9 @@ model.fit(X, y)
 ml_preds = model.predict(X)
 
 # -------------------------
-# BASIC VISUALS
+# INSIGHTS
 # -------------------------
-st.markdown("## 📊 Insights")
+st.markdown("## Insights")
 
 col1, col2 = st.columns(2)
 
@@ -123,7 +145,7 @@ with col2:
 # -------------------------
 # HEATMAP
 # -------------------------
-st.markdown("## 🔥 Correlation Heatmap")
+st.markdown("## Correlation Heatmap")
 
 corr = df[['G1','G2','G3','studytime','absences']].corr()
 
@@ -135,11 +157,9 @@ plt.yticks(range(len(corr.columns)), corr.columns)
 st.pyplot(fig)
 
 # -------------------------
-# ADVANCED VISUALS 🔥
+# MULTI FEATURE ANALYSIS
 # -------------------------
-
-# Pairplot style
-st.markdown("## 🔍 Multi Feature Analysis")
+st.markdown("## Multi Feature Analysis")
 
 cols = ['G1','G2','G3','studytime','absences']
 fig = plt.figure(figsize=(10,8))
@@ -157,29 +177,37 @@ for i in range(len(cols)):
 plt.tight_layout()
 st.pyplot(fig)
 
-# Feature importance
-st.markdown("## 📊 Feature Importance")
+# -------------------------
+# FEATURE IMPORTANCE
+# -------------------------
+st.markdown("## Feature Importance")
 
 fig = plt.figure()
 plt.bar(['study','absences','G1','G2'], model.coef_)
 st.pyplot(fig)
 
-# Error distribution
-st.markdown("## ⚠️ Error Distribution")
+# -------------------------
+# ERROR DISTRIBUTION
+# -------------------------
+st.markdown("## Error Distribution")
 
 fig = plt.figure()
 plt.hist(actual - fuzzy_preds)
 st.pyplot(fig)
 
-# Predicted vs Actual
-st.markdown("## 🎯 Predicted vs Actual")
+# -------------------------
+# PREDICTED VS ACTUAL
+# -------------------------
+st.markdown("## Predicted vs Actual")
 
 fig = plt.figure()
 plt.scatter(actual, fuzzy_preds)
 st.pyplot(fig)
 
-# Model comparison
-st.markdown("## 📈 Model Comparison")
+# -------------------------
+# MODEL COMPARISON
+# -------------------------
+st.markdown("## Model Comparison")
 
 fig = plt.figure()
 plt.plot(actual[:50], label="Actual")
@@ -188,31 +216,39 @@ plt.plot(ml_preds[:50], label="ML")
 plt.legend()
 st.pyplot(fig)
 
-# Pie chart
-st.markdown("## 🧩 Pass vs Fail")
+# -------------------------
+# PASS FAIL
+# -------------------------
+st.markdown("## Pass vs Fail")
 
 fig = plt.figure()
 plt.pie((df['G3']>=10).value_counts(), labels=["Pass","Fail"], autopct='%1.1f%%')
 st.pyplot(fig)
 
-# 3D plot
-st.markdown("## 🧠 3D Visualization")
+# -------------------------
+# 3D VISUALIZATION
+# -------------------------
+st.markdown("## 3D Visualization")
 
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 ax.scatter(df['G1'], df['G2'], df['G3'])
 st.pyplot(fig)
 
-# Residuals
-st.markdown("## 🧠 Residual Analysis")
+# -------------------------
+# RESIDUALS
+# -------------------------
+st.markdown("## Residual Analysis")
 
 fig = plt.figure()
 plt.scatter(ml_preds, actual-ml_preds)
 plt.axhline(0)
 st.pyplot(fig)
 
-# Cumulative error
-st.markdown("## 📈 Cumulative Error")
+# -------------------------
+# CUMULATIVE ERROR
+# -------------------------
+st.markdown("## Cumulative Error")
 
 fig = plt.figure()
 plt.plot(np.cumsum(np.abs(actual - fuzzy_preds)))
@@ -221,12 +257,8 @@ st.pyplot(fig)
 # -------------------------
 # METRICS
 # -------------------------
-# -------------------------
-# 📊 PERFORMANCE METRICS (ADVANCED)
-# -------------------------
-st.markdown("## 📊 Model Performance Dashboard")
+st.markdown("## Model Performance Dashboard")
 
-# ---- Regression Metrics ----
 fuzzy_mae = mean_absolute_error(actual, fuzzy_preds)
 ml_mae = mean_absolute_error(actual, ml_preds)
 
@@ -236,7 +268,6 @@ ml_rmse = np.sqrt(mean_squared_error(actual, ml_preds))
 fuzzy_r2 = r2_score(actual, fuzzy_preds)
 ml_r2 = r2_score(actual, ml_preds)
 
-# ---- Classification Metrics ----
 actual_class = (actual >= 10).astype(int)
 fuzzy_class = (fuzzy_preds >= 10).astype(int)
 ml_class = (ml_preds >= 10).astype(int)
@@ -244,37 +275,24 @@ ml_class = (ml_preds >= 10).astype(int)
 fuzzy_acc = accuracy_score(actual_class, fuzzy_class)
 ml_acc = accuracy_score(actual_class, ml_class)
 
-# -------------------------
-# DISPLAY METRICS (CARDS)
-# -------------------------
-st.markdown("### 🔍 Regression Metrics")
-
 col1, col2, col3 = st.columns(3)
-
 col1.metric("Fuzzy MAE", f"{fuzzy_mae:.2f}")
 col2.metric("Fuzzy RMSE", f"{fuzzy_rmse:.2f}")
 col3.metric("Fuzzy R²", f"{fuzzy_r2:.3f}")
 
 col1, col2, col3 = st.columns(3)
-
 col1.metric("ML MAE", f"{ml_mae:.2f}")
 col2.metric("ML RMSE", f"{ml_rmse:.2f}")
 col3.metric("ML R²", f"{ml_r2:.3f}")
 
-# -------------------------
-# 🎯 ACCURACY
-# -------------------------
-st.markdown("### 🎯 Classification Accuracy")
-
 col1, col2 = st.columns(2)
-
 col1.metric("Fuzzy Accuracy", f"{fuzzy_acc*100:.2f}%")
 col2.metric("ML Accuracy", f"{ml_acc*100:.2f}%")
 
 # -------------------------
-# 🎯 LIVE PREDICTOR
+# LIVE PREDICTOR
 # -------------------------
-st.markdown("## 🎯 Live Prediction")
+st.markdown("## Live Prediction")
 
 col1, col2 = st.columns(2)
 
@@ -295,12 +313,12 @@ with col2:
         sim.compute()
         result = sim.output['g3'] * 20
 
-        st.markdown(f'<div class="result-box">Score: {result:.2f}</div>', unsafe_allow_html=True)
+        st.markdown(f"### Predicted Score: {result:.2f}")
 
         if result >= 10:
-            st.success("✅ PASS")
+            st.success("PASS")
         else:
-            st.error("❌ FAIL")
+            st.error("FAIL")
 
 # -------------------------
 # DOWNLOAD
@@ -311,4 +329,4 @@ result_df = pd.DataFrame({
     "ML": ml_preds
 })
 
-st.download_button("📥 Download Results", result_df.to_csv(index=False), "results.csv")
+st.download_button("Download Results", result_df.to_csv(index=False), "results.csv")
