@@ -3,14 +3,17 @@ from fuzzy_model import create_fuzzy_system
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_absolute_error
 
-df = pd.read_csv("student-por.csv", sep=';')
+# Load dataset
+df = pd.read_csv("student-por.csv")
+
+# Select columns
 df = df[['studytime','absences','G1','G2','G3']]
 df.columns = ['study','absences','g1','g2','g3']
 
-# 🔹 Classification (Pass/Fail)
+# PASS/FAIL classification
 df['pass'] = df['g3'].apply(lambda x: 1 if x >= 10 else 0)
 
-# Fuzzy predictions
+# 🔹 Fuzzy predictions
 fuzzy_preds = []
 
 for i in range(len(df)):
@@ -24,7 +27,7 @@ for i in range(len(df)):
     sim.compute()
     fuzzy_preds.append(sim.output['g3'])
 
-# ML model
+# 🔹 ML Model
 X = df[['study','absences','g1','g2']]
 y = df['g3']
 
@@ -32,5 +35,6 @@ model = LinearRegression()
 model.fit(X, y)
 ml_preds = model.predict(X)
 
+# 📊 Results
 print("Fuzzy MAE:", mean_absolute_error(y, fuzzy_preds))
 print("ML MAE:", mean_absolute_error(y, ml_preds))
